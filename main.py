@@ -1,25 +1,22 @@
 import numpy.random
 import pygame, sys
 import numpy as np
+from ZOA import *
 from pygame.examples import scroll
 
-UNITWIDTH = 8
-UNITHEIGHT = 8
-ELEMENT_COLOR_MAP = {"AA": (255, 255, 255), "BA": (148, 201, 167)}
+INCREMENT_UNIT = 8
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 BLUE = (0, 100, 255)
+DARKBLUEBACK = (13, 13, 27)
+LAVENDERBORDER = (17, 17, 31)
+ELEMENT_COLOR_MAP = {"AA": (255, 255, 255), "BA": (148, 201, 167)}
 WIDTH = 1520
 HEIGHT = 1008
-BACKGROUND = WHITE
-DARKBLUEBACK = (13, 13, 27)
-#LAVENDERBORDER = (29, 28, 61)
-LAVENDERBORDER = (17, 17, 31)
-T = 1000
-INCREMENT_UNIT = 8
-CENTRAL_COSM_DATA = np.zeros([189, 125])
 xBoxes = 189
 yBoxes = 125
+CENTRAL_COSM_DATA = np.zeros([xBoxes, yBoxes])
+
 class Particle(pygame.sprite.Sprite):
     def __init__(self, x, y, ID):
         super().__init__()
@@ -58,7 +55,6 @@ class Particle(pygame.sprite.Sprite):
         Dict = {0: "DOWN", 1: "UP", 2: "LEFT", 3: "RIGHT"}
         randomNum = np.random.randint(0, 4)
         self.move(Dict[randomNum])
-
 def main():
     global SCREEN, CLOCK
     pygame.init()
@@ -91,8 +87,8 @@ def main():
         CLOCK.tick(1)
 def drawGrid():
     blockSize = 16 #Set the size of the grid block
-    for x in range(0, WIDTH, UNITHEIGHT):
-        for y in range(0, HEIGHT, UNITHEIGHT):
+    for x in range(0, WIDTH, INCREMENT_UNIT):
+        for y in range(0, HEIGHT, INCREMENT_UNIT):
             rect = pygame.Rect(x, y, blockSize, blockSize)
             pygame.draw.rect(SCREEN, LAVENDERBORDER, rect, 1)
 
