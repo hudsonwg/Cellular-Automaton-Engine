@@ -2,6 +2,9 @@
 #SWEEPERS ARE OBJECTS THAT ARE AT RISK OF TURNING TO X UNLESS ANOTHER OBJECT FILLS THEIR PLACE. ONCE ALL OBJECTS ARE MOVED ANY OUTSTANDING SWEEPERS ARE CONVERTED TO "X"
 #CLASS OBJECTS FOR ZOA PYTHON LIBRARY
 #SEED IS LOCATION OF ARM BUNDLE AND CORTICAL PROTEIN RESPECTIVELY  EXAMPLE: {[0, 1], [0, 2]}
+
+
+#TYPES OF ACTION - - - - - MOVEMENT, EAT, ATTACK, REPOSITION, STORE/COLLECT,
 class Cosm:
     def __init__(self, centralData, elements, ID, height, width):
         self.COSM_CENTRAL_DATA = centralData
@@ -46,17 +49,19 @@ class Cosm:
             if(self.COSM_CENTRAL_DATA[index][-1] == "X" and len(self.COSM_CENTRAL_DATA[index]) != 1):
                 self.COSM_CENTRAL_DATA[index] = "X"
         self.SWEEP_INDEXES = []
+    def updateCosm(self):
+        print("under construction")
 class Organism:
     def __init__(self, ARM, Seed):
         self.ARM = ARM
         self.Seed = Seed
-        self.OrganismArray = []
+        self.ElementArray = []
+        #make sure to initialize element array with seed
     def addElement(self, Element, Location):
         if(Element.getConnection() == False):
             Element.toggleConnection()
-
-
-
+    def completeAction(self):
+        print("under construction")
 class Ecosystem:
     def __init__(self, Organisms):
         self.organisms = Organisms
