@@ -10,7 +10,7 @@ WHITE = (255, 255, 255)
 BLUE = (0, 100, 255)
 DARKBLUEBACK = (13, 13, 27)
 LAVENDERBORDER = (17, 17, 31)
-ELEMENT_COLOR_MAP = {"AA": (255, 255, 255), "BA": (148, 201, 167)}
+ELEMENT_COLOR_MAP = {"X": DARKBLUEBACK, "BA": (148, 201, 167)}
 WIDTH = 1520
 HEIGHT = 1008
 xBoxes = 189
@@ -62,7 +62,7 @@ def main():
     pygame.display.set_caption("LifeEngine ||| VERSION 0.0.1 ||| Cosm 1 ")
     CLOCK = pygame.time.Clock()
     SCREEN.fill(DARKBLUEBACK)
-    drawGrid()
+    drawGrid(WIDTH, HEIGHT)
     container = pygame.sprite.Group()
     for i in range(50):
         x = np.random.randint(0, xBoxes)
@@ -85,14 +85,25 @@ def main():
             pygame.sprite.moveRandom()
         pygame.display.flip()
         CLOCK.tick(1)
-def drawGrid():
+def drawGrid(W, H):
     blockSize = 16 #Set the size of the grid block
-    for x in range(0, WIDTH, INCREMENT_UNIT):
-        for y in range(0, HEIGHT, INCREMENT_UNIT):
+    for x in range(0, W, INCREMENT_UNIT):
+        for y in range(0, H, INCREMENT_UNIT):
             rect = pygame.Rect(x, y, blockSize, blockSize)
             pygame.draw.rect(SCREEN, LAVENDERBORDER, rect, 1)
 
-main()
+
+def ZOA_TEST_1():
+    COSM_UNIT = 8
+    COSM_WIDTH = 500
+    COSM_HEIGHT = 500
+    print("running ZOA Test 1")
+    world1 = Cosm("COSM1TEST1", COSM_HEIGHT, COSM_WIDTH, COSM_UNIT)
+    session1 = Session(world1, 1)
+    session1.runSession()
+
+
+ZOA_TEST_1()
 
 
 

@@ -1,18 +1,54 @@
+import pygame
+import sys
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+BLUE = (0, 100, 255)
+DARKBLUEBACK = (13, 13, 27)
+CODEKEY = {"AA": (255, 255, 255), "AB": (0, 100, 255), "X": (13, 13, 27)}
 #EMPTY SQUARES DENOTED BY "X"
 #SWEEPERS ARE OBJECTS THAT ARE AT RISK OF TURNING TO X UNLESS ANOTHER OBJECT FILLS THEIR PLACE. ONCE ALL OBJECTS ARE MOVED ANY OUTSTANDING SWEEPERS ARE CONVERTED TO "X"
 #CLASS OBJECTS FOR ZOA PYTHON LIBRARY
 #SEED IS LOCATION OF ARM BUNDLE AND CORTICAL PROTEIN RESPECTIVELY  EXAMPLE: {[0, 1], [0, 2]}
 
-
 #TYPES OF ACTION - - - - - MOVEMENT, EAT, ATTACK, REPOSITION, STORE/COLLECT,
+
+
+
+class Session:
+    def __init__(self, cosm, tick):
+        self.tickSpeed = tick
+        global SCREEN, CLOCK
+        self.cosm = cosm
+        pygame.init()
+        SCREEN = pygame.display.set_mode((cosm.COSM_HEIGHT, cosm.COSM_WIDTH))
+        pygame.display.set_caption("LifeEngine ||| VERSION 0.0.1 ||| Cosm 1 ")
+        CLOCK = pygame.time.Clock()
+    def runSession(self):
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+            self.cosm.updateCosm()
+            for i in range(self.cosm.COSM_HEIGHT):
+                for j in range(self.cosm.COSM_WIDTH):
+                    rect = pygame.Rect(1 + self.cosm.increment * (j), 1 + self.cosm.increment * (i), self.cosm.increment - 2, self.cosm.increment - 2)
+                    pygame.draw.rect(SCREEN, CODEKEY[self.cosm.COSM_CENTRAL_DATA[i][j]], rect)
+
+            pygame.display.flip()
+            CLOCK.tick(self.tickSpeed)
+
 class Cosm:
-    def __init__(self, centralData, elements, ID, height, width):
-        self.COSM_CENTRAL_DATA = centralData
-        self.COSM_ELEMENT_TABLE = elements
+    def __init__(self, ID, width, height, increment):
+        self.increment = increment
+        self.COSM_CENTRAL_DATA = [["X"] * width] * height
+        self.COSM_ELEMENT_TABLE = 0
         self.COSM_ID = ID
         self.COSM_HEIGHT = height
         self.COSM_WIDTH = width
         self.SWEEP_INDEXES = []
+    def changeIndex(self, x, y, change):
+        self.COSM_CENTRAL_DATA[y][x] = change
     def data(self):
         print(self.COSM_CENTRAL_DATA)
         print(self.COSM_ELEMENT_TABLE)
@@ -42,7 +78,11 @@ class Cosm:
                 self.COSM_CENTRAL_DATA[inputIndex[0] - 1, (inputIndex[1])]
                 self.COSM_CENTRAL_DATA[inputIndex[0], (inputIndex[1])] += "X"
                 self.SWEEP_INDEXES.append([inputIndex[0], (inputIndex[1])])
-    def moveOrganism(organismArray, Direction):
+    def moveOrganism(organismArray, Direction, Velocity):
+        #velocity is determined by total negative mass of organism (-m) + its locomotive coefficient (LOCOCO)
+        #It's a large spatula, and we all live on it, but when you climb through the divots to the other side and the spatula does not flip, you live backwards
+
+
         print("under construction")
     def updateSweepers(self):
         for index in self.SWEEP_INDEXES:
@@ -50,7 +90,7 @@ class Cosm:
                 self.COSM_CENTRAL_DATA[index] = "X"
         self.SWEEP_INDEXES = []
     def updateCosm(self):
-        print("under construction")
+        print("updating cosm")
 class Organism:
     def __init__(self, ARM, Seed):
         self.ARM = ARM
@@ -88,3 +128,18 @@ class Element_Table:
     def addElement(self, Element):
         #add to dictionary of elements
         self.elementTable.update(Element)
+
+
+
+
+#GENERAL COSM STRUCTURE
+#
+#Cosm contains array of elements,
+#once a part of an organism, elements are no longer controleld by the cosm but rather the organism
+#organism calls action each tick to choose action. if organism moves, it passes a movement direction plus the array of its member elements to the cosm for the movement function to occur there.
+#
+#
+#
+#
+#
+#
