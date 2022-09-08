@@ -1,28 +1,19 @@
 import numpy
 import pygame
 import sys
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-BLUE = (0, 100, 255)
-DARKBLUEBACK = (13, 13, 27)
+
+
+##CONSTANTS##
+COLORKEY = {"BLACK": (0, 0, 0), "WHITE": (255, 255, 255), "BLUE": (0, 100, 255), "DARKBLUE": (13, 13, 27)}
 CODEKEY = {"000CAA": (255, 255, 255), "000BAA": (0, 100, 255), "000AAA": (13, 13, 27)}
-#EMPTY SQUARES DENOTED BY "X"
-#SWEEPERS ARE OBJECTS THAT ARE AT RISK OF TURNING TO X UNLESS ANOTHER OBJECT FILLS THEIR PLACE. ONCE ALL OBJECTS ARE MOVED ANY OUTSTANDING SWEEPERS ARE CONVERTED TO "X"
-#CLASS OBJECTS FOR ZOA PYTHON LIBRARY
-#SEED IS LOCATION OF ARM BUNDLE AND CORTICAL PROTEIN RESPECTIVELY  EXAMPLE: {[0, 1], [0, 2]}
-#TYPES OF ACTION - - - - - MOVEMENT, EAT, ATTACK, REPOSITION, STORE/COLLECT,
 
 
-def generateRandomFood(amount, cosm):
-    count = 0
-    while(count<amount):
-        randx = numpy.random.randint(0, cosm.COSM_WIDTH)
-        randy = numpy.random.randint(0, cosm.COSM_HEIGHT)
-        if(cosm.COSM_CENTRAL_DATA[randx][randy] == "000AAA"):
-            cosm.COSM_CENTRAL_DATA[randx][randy] = "000BAA"
-            count += 1
+
+##CLASSES##
 class Session:
-    def __init__(self, cosm, tick):
+    def __init__(self, cosm, tick, borders):
+        self.borders = borders
+        self.borderVal = 0
         self.tickSpeed = tick
         global SCREEN, CLOCK
         self.cosm = cosm
@@ -31,29 +22,25 @@ class Session:
         pygame.display.set_caption("LifeEngine ||| VERSION 0.0.1 ||| Cosm 1 ")
         CLOCK = pygame.time.Clock()
     def runSession(self):
+        if(self.borders == True):
+            borderVal = 2
+        else:
+            borderVal = 0
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
             self.cosm.updateCosm()
+            ##DRAWS ARRAY ON UPDATE
             for i in range(self.cosm.COSM_HEIGHT):
                 for j in range(self.cosm.COSM_WIDTH):
-                    rect = pygame.Rect(1 + self.cosm.increment * (j), 1 + self.cosm.increment * (i), self.cosm.increment - 2, self.cosm.increment - 2)
+                    ##THE -2 clauses in the line below represent the width of the grids
+                    rect = pygame.Rect(1 + self.cosm.increment * (j), 1 + self.cosm.increment * (i), self.cosm.increment - borderVal, self.cosm.increment - borderVal)
                     pygame.draw.rect(SCREEN, CODEKEY[self.cosm.COSM_CENTRAL_DATA[i][j]], rect)
 
             pygame.display.flip()
             CLOCK.tick(self.tickSpeed)
-def drawParticle(xCoord, yCoord):
-    ##will handle drawing single particle at single index
-    print("FUNCTION - drawParticle() is currently under construction")
-def deleteParticle(xCoord, yCoord):
-    ##MAKES PARTICLE EMPTY SPACE AT SPECIFIC LOCATION
-    print("FUNCTION - deleteParticle() is currently under construction")
-def checkMoveQuery(currentX, currentY, queriedX, queriedY):
-    ##check if proposed move is possible, or if there is collision, returns false if collisions detected
-    moveApproved = False
-    print("FUNCTION - checkMoveQuery() is currently under construction")
 class Cosm:
     def __init__(self, ID, width, height, increment):
         self.increment = increment
@@ -147,6 +134,28 @@ class Element_Table:
         self.elementTable.update(Element)
 
 
+##FUNCTIONS##
+def generateRandomFood(amount, cosm):
+    count = 0
+    while(count<amount):
+        randx = numpy.random.randint(0, cosm.COSM_WIDTH)
+        randy = numpy.random.randint(0, cosm.COSM_HEIGHT)
+        if(cosm.COSM_CENTRAL_DATA[randx][randy] == "000AAA"):
+            cosm.COSM_CENTRAL_DATA[randx][randy] = "000BAA"
+            count += 1
+def drawParticle(xCoord, yCoord):
+    ##will handle drawing single particle at single index
+    print("FUNCTION - drawParticle() is currently under construction")
+def deleteParticle(xCoord, yCoord):
+    ##MAKES PARTICLE EMPTY SPACE AT SPECIFIC LOCATION
+    print("FUNCTION - deleteParticle() is currently under construction")
+def checkMoveQuery(currentX, currentY, queriedX, queriedY):
+    ##check if proposed move is possible, or if there is collision, returns false if collisions detected
+    moveApproved = False
+    print("FUNCTION - checkMoveQuery() is currently under construction")
+
+
+
 
 
 #GENERAL COSM STRUCTURE
@@ -155,8 +164,8 @@ class Element_Table:
 #once a part of an organism, elements are no longer controleld by the cosm but rather the organism
 #organism calls action each tick to choose action. if organism moves, it passes a movement direction plus the array of its member elements to the cosm for the movement function to occur there.
 #
-#
-#
-#
-#
-#
+#EMPTY SQUARES DENOTED BY "X"
+#SWEEPERS ARE OBJECTS THAT ARE AT RISK OF TURNING TO X UNLESS ANOTHER OBJECT FILLS THEIR PLACE. ONCE ALL OBJECTS ARE MOVED ANY OUTSTANDING SWEEPERS ARE CONVERTED TO "X"
+#CLASS OBJECTS FOR ZOA PYTHON LIBRARY
+#SEED IS LOCATION OF ARM BUNDLE AND CORTICAL PROTEIN RESPECTIVELY  EXAMPLE: {[0, 1], [0, 2]}
+#TYPES OF ACTION - - - - - MOVEMENT, EAT, ATTACK, REPOSITION, STORE/COLLECT,
