@@ -9,7 +9,6 @@ CODEKEY = {"AA": (255, 255, 255), "AB": (0, 100, 255), "X": (13, 13, 27)}
 #SWEEPERS ARE OBJECTS THAT ARE AT RISK OF TURNING TO X UNLESS ANOTHER OBJECT FILLS THEIR PLACE. ONCE ALL OBJECTS ARE MOVED ANY OUTSTANDING SWEEPERS ARE CONVERTED TO "X"
 #CLASS OBJECTS FOR ZOA PYTHON LIBRARY
 #SEED IS LOCATION OF ARM BUNDLE AND CORTICAL PROTEIN RESPECTIVELY  EXAMPLE: {[0, 1], [0, 2]}
-
 #TYPES OF ACTION - - - - - MOVEMENT, EAT, ATTACK, REPOSITION, STORE/COLLECT,
 
 
@@ -37,7 +36,16 @@ class Session:
 
             pygame.display.flip()
             CLOCK.tick(self.tickSpeed)
-
+def drawParticle(xCoord, yCoord):
+    ##will handle drawing single particle at single index
+    print("FUNCTION - drawParticle() is currently under construction")
+def deleteParticle(xCoord, yCoord):
+    ##MAKES PARTICLE EMPTY SPACE AT SPECIFIC LOCATION
+    print("FUNCTION - deleteParticle() is currently under construction")
+def checkMoveQuery(currentX, currentY, queriedX, queriedY):
+    ##check if proposed move is possible, or if there is collision, returns false if collisions detected
+    moveApproved = False
+    print("FUNCTION - checkMoveQuery() is currently under construction")
 class Cosm:
     def __init__(self, ID, width, height, increment):
         self.increment = increment
