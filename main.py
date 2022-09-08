@@ -95,10 +95,12 @@ def drawGrid(W, H):
 
 def ZOA_TEST_1():
     COSM_UNIT = 8
-    COSM_WIDTH = 500
-    COSM_HEIGHT = 500
+    COSM_WIDTH = 100
+    COSM_HEIGHT = 100
     print("running ZOA Test 1")
     world1 = Cosm("COSM1TEST1", COSM_HEIGHT, COSM_WIDTH, COSM_UNIT)
+    generateRandomFood(50, world1)
+    world1.COSM_CENTRAL_DATA[50][50] = "000CAA"
     session1 = Session(world1, 1)
     session1.runSession()
 

@@ -1,10 +1,11 @@
+import numpy
 import pygame
 import sys
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 BLUE = (0, 100, 255)
 DARKBLUEBACK = (13, 13, 27)
-CODEKEY = {"AA": (255, 255, 255), "AB": (0, 100, 255), "X": (13, 13, 27)}
+CODEKEY = {"000CAA": (255, 255, 255), "000BAA": (0, 100, 255), "000AAA": (13, 13, 27)}
 #EMPTY SQUARES DENOTED BY "X"
 #SWEEPERS ARE OBJECTS THAT ARE AT RISK OF TURNING TO X UNLESS ANOTHER OBJECT FILLS THEIR PLACE. ONCE ALL OBJECTS ARE MOVED ANY OUTSTANDING SWEEPERS ARE CONVERTED TO "X"
 #CLASS OBJECTS FOR ZOA PYTHON LIBRARY
@@ -12,14 +13,21 @@ CODEKEY = {"AA": (255, 255, 255), "AB": (0, 100, 255), "X": (13, 13, 27)}
 #TYPES OF ACTION - - - - - MOVEMENT, EAT, ATTACK, REPOSITION, STORE/COLLECT,
 
 
-
+def generateRandomFood(amount, cosm):
+    count = 0
+    while(count<amount):
+        randx = numpy.random.randint(0, cosm.COSM_WIDTH)
+        randy = numpy.random.randint(0, cosm.COSM_HEIGHT)
+        if(cosm.COSM_CENTRAL_DATA[randx][randy] == "000AAA"):
+            cosm.COSM_CENTRAL_DATA[randx][randy] = "000BAA"
+            count += 1
 class Session:
     def __init__(self, cosm, tick):
         self.tickSpeed = tick
         global SCREEN, CLOCK
         self.cosm = cosm
         pygame.init()
-        SCREEN = pygame.display.set_mode((cosm.COSM_HEIGHT, cosm.COSM_WIDTH))
+        SCREEN = pygame.display.set_mode((cosm.COSM_HEIGHT*cosm.increment, cosm.COSM_WIDTH*cosm.increment))
         pygame.display.set_caption("LifeEngine ||| VERSION 0.0.1 ||| Cosm 1 ")
         CLOCK = pygame.time.Clock()
     def runSession(self):
@@ -49,7 +57,8 @@ def checkMoveQuery(currentX, currentY, queriedX, queriedY):
 class Cosm:
     def __init__(self, ID, width, height, increment):
         self.increment = increment
-        self.COSM_CENTRAL_DATA = [["X"] * width] * height
+        #self.COSM_CENTRAL_DATA = [["X"] * width] * height
+        self.COSM_CENTRAL_DATA = numpy.full([width, height], "000AAA")
         self.COSM_ELEMENT_TABLE = 0
         self.COSM_ID = ID
         self.COSM_HEIGHT = height
