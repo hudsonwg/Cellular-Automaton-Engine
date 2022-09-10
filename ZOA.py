@@ -5,7 +5,7 @@ import sys
 
 ##CONSTANTS##
 COLORKEY = {"BLACK": (0, 0, 0), "WHITE": (255, 255, 255), "BLUE": (0, 100, 255), "DARKBLUE": (13, 13, 27)}
-CODEKEY = {"000CAA": (255, 255, 255), "000BAA": (0, 100, 255), "000AAA": (13, 13, 27)}
+CODEKEY = {"000AAA": (13, 13, 27),"000BAA": (0, 100, 255), "000CAA": (255, 255, 255), "000DAA": (96, 235, 152), "000EAA": (245, 51, 196)}
 
 
 
@@ -23,7 +23,7 @@ class Session:
         CLOCK = pygame.time.Clock()
     def runSession(self):
         if(self.borders == True):
-            borderVal = 2
+            borderVal = 0.1
         else:
             borderVal = 0
         while True:
@@ -142,6 +142,14 @@ def generateRandomFood(amount, cosm):
         randy = numpy.random.randint(0, cosm.COSM_HEIGHT)
         if(cosm.COSM_CENTRAL_DATA[randx][randy] == "000AAA"):
             cosm.COSM_CENTRAL_DATA[randx][randy] = "000BAA"
+            count += 1
+def generateRandomElement(element, amount, cosm):
+    count = 0
+    while(count<amount):
+        randx = numpy.random.randint(0, cosm.COSM_WIDTH)
+        randy = numpy.random.randint(0, cosm.COSM_HEIGHT)
+        if(cosm.COSM_CENTRAL_DATA[randx][randy] == "000AAA"):
+            cosm.COSM_CENTRAL_DATA[randx][randy] = element
             count += 1
 def drawParticle(xCoord, yCoord):
     ##will handle drawing single particle at single index

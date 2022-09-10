@@ -100,11 +100,13 @@ def ZOA_TEST_1():
     print("running ZOA Test 1")
     world1 = Cosm("COSM1TEST1", COSM_HEIGHT, COSM_WIDTH, COSM_UNIT)
     generateRandomFood(50, world1)
+    generateRandomElement("000DAA", 20, world1)
+    generateRandomElement("000EAA", 20, world1)
     world1.COSM_CENTRAL_DATA[50][50] = "000CAA"
     world1.COSM_CENTRAL_DATA[51][50] = "000CAA"
     world1.COSM_CENTRAL_DATA[51][51] = "000CAA"
     world1.COSM_CENTRAL_DATA[52][51] = "000CAA"
-    session1 = Session(world1, 1, False)
+    session1 = Session(world1, 1, True)
     session1.runSession()
 
 
