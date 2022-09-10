@@ -5,13 +5,13 @@ import sys
 
 ##CONSTANTS##
 COLORKEY = {"BLACK": (0, 0, 0), "WHITE": (255, 255, 255), "BLUE": (0, 100, 255), "DARKBLUE": (13, 13, 27)}
-CODEKEY = {"000AAA": (13, 13, 27),"000BAA": (0, 100, 255), "000CAA": (255, 255, 255), "000DAA": (96, 235, 152), "000EAA": (245, 51, 196)}
-
-
+CODEKEY = {"AAA": (13, 13, 27),"BAA": (0, 100, 255), "CAA": (255, 255, 255), "DAA": (96, 235, 152), "EAA": (245, 51, 196)}
+GENERATEKEY = ["BAA", "CAA", "DAA", "EAA"]
 
 ##CLASSES##
 class Session:
-    def __init__(self, cosm, tick, borders):
+    def __init__(self, cosm, tick, borders, randomOrganisms):
+        self.randomOrganisms = randomOrganisms
         self.borders = borders
         self.borderVal = 0
         self.tickSpeed = tick
@@ -26,18 +26,33 @@ class Session:
             borderVal = 0.1
         else:
             borderVal = 0
+        ##DECLARE RANDOM ORGS
+        if(self.randomOrganisms == True):
+            organismArray = []
+            organismArray.append(randomOrganism("001", self.cosm, 10))
+            organismArray.append(randomOrganism("002", self.cosm, 10))
+            organismArray.append(randomOrganism("003", self.cosm, 10))
+            organismArray.append(randomOrganism("004", self.cosm, 10))
+            organismArray.append(randomOrganism("005", self.cosm, 10))
+            organismArray.append(randomOrganism("006", self.cosm, 10))
+            organismArray.append(randomOrganism("007", self.cosm, 10))
+            organismArray.append(randomOrganism("008", self.cosm, 10))
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
             self.cosm.updateCosm()
+            #DISPLAY ORGANISMS
+            if(self.randomOrganisms == True):
+                for org in organismArray:
+                    org.move()
             ##DRAWS ARRAY ON UPDATE
             for i in range(self.cosm.COSM_HEIGHT):
                 for j in range(self.cosm.COSM_WIDTH):
                     ##THE -2 clauses in the line below represent the width of the grids
                     rect = pygame.Rect(1 + self.cosm.increment * (j), 1 + self.cosm.increment * (i), self.cosm.increment - borderVal, self.cosm.increment - borderVal)
-                    pygame.draw.rect(SCREEN, CODEKEY[self.cosm.COSM_CENTRAL_DATA[i][j]], rect)
+                    pygame.draw.rect(SCREEN, CODEKEY[self.cosm.COSM_CENTRAL_DATA[i][j][3:6]], rect)
 
             pygame.display.flip()
             CLOCK.tick(self.tickSpeed)
@@ -106,6 +121,116 @@ class Organism:
             Element.toggleConnection()
     def completeAction(self):
         print("under construction")
+class randomOrganism:
+    def __init__(self, ID, cosm, size):
+        self.elArray = []
+        self.ID = ID
+        self.size = size
+        self.cosm = cosm
+
+        rootFound = False
+        while(rootFound == False):
+            randRoot1 = numpy.random.randint(0, cosm.COSM_HEIGHT - 1)
+            randRoot2 = numpy.random.randint(0, cosm.COSM_WIDTH - 1)
+            if(cosm.COSM_CENTRAL_DATA[randRoot1][randRoot2] == "000AAA"):
+                randKey = numpy.random.randint(0, 3)
+                cosm.COSM_CENTRAL_DATA[randRoot1][randRoot2] = (ID + GENERATEKEY[randKey])
+                self.elArray.append([randRoot1, randRoot2])
+                rootFound = True
+        try:
+            if (cosm.COSM_CENTRAL_DATA[self.elArray[0][0]][self.elArray[0][1] + 1] == "000AAA"):
+                favor = numpy.random.randint(0, 10)
+                if(favor < 8):
+                    cosm.COSM_CENTRAL_DATA[self.elArray[0][0]][self.elArray[0][1] + 1] = "000CAA"
+                    self.elArray.append([self.elArray[0][0], self.elArray[0][1] + 1])
+        except:
+            print("something shorted")
+        try:
+            if (cosm.COSM_CENTRAL_DATA[self.elArray[0][0]][self.elArray[0][1] - 1] == "000AAA"):
+                favor = numpy.random.randint(0, 10)
+                if(favor < 8):
+                    cosm.COSM_CENTRAL_DATA[self.elArray[0][0]][self.elArray[0][1] - 1] = "000CAA"
+                    self.elArray.append([self.elArray[0][0], self.elArray[0][1] - 1])
+        except:
+            print("something shorted")
+        try:
+            if (cosm.COSM_CENTRAL_DATA[self.elArray[0][0] + 1][self.elArray[0][1] + 1] == "000AAA"):
+                favor = numpy.random.randint(0, 10)
+                if(favor < 8):
+                    cosm.COSM_CENTRAL_DATA[self.elArray[0][0] + 1][self.elArray[0][1] + 1] = "000CAA"
+                    self.elArray.append([self.elArray[0][0] + 1, self.elArray[0][1] + 1])
+        except:
+            print("something shorted")
+        try:
+            if (cosm.COSM_CENTRAL_DATA[self.elArray[0][0] - 1][self.elArray[0][1] + 1] == "000AAA"):
+                favor = numpy.random.randint(0, 10)
+                if(favor < 8):
+                    cosm.COSM_CENTRAL_DATA[self.elArray[0][0] - 1][self.elArray[0][1] + 1] = "000CAA"
+                    self.elArray.append([self.elArray[0][0] - 1, self.elArray[0][1] + 1])
+        except:
+            print("something shorted")
+        try:
+            if (cosm.COSM_CENTRAL_DATA[self.elArray[0][0] - 1][self.elArray[0][1] - 1] == "000AAA"):
+                favor = numpy.random.randint(0, 10)
+                if(favor < 8):
+                    cosm.COSM_CENTRAL_DATA[self.elArray[0][0] - 1][self.elArray[0][1] - 1] = "000CAA"
+                    self.elArray.append([self.elArray[0][0] - 1, self.elArray[0][1] - 1])
+        except:
+            print("something shorted")
+        try:
+            if (cosm.COSM_CENTRAL_DATA[self.elArray[0][0] - 1][self.elArray[0][1]] == "000AAA"):
+                favor = numpy.random.randint(0, 10)
+                if(favor < 8):
+                    cosm.COSM_CENTRAL_DATA[self.elArray[0][0] - 1][self.elArray[0][1]] = "000CAA"
+                    self.elArray.append([self.elArray[0][0] - 1, self.elArray[0][1]])
+        except:
+            print("something shorted")
+        try:
+            if (cosm.COSM_CENTRAL_DATA[self.elArray[0][0] + 1][self.elArray[0][1] - 1] == "000AAA"):
+                favor = numpy.random.randint(0, 10)
+                if(favor < 8):
+                    cosm.COSM_CENTRAL_DATA[self.elArray[0][0] + 1][self.elArray[0][1] - 1] = "000CAA"
+                    self.elArray.append([self.elArray[0][0] + 1, self.elArray[0][1] - 1])
+        except:
+            print("something shorted")
+        try:
+            if (cosm.COSM_CENTRAL_DATA[self.elArray[0][0] + 1][self.elArray[0][1]] == "000AAA"):
+                favor = numpy.random.randint(0, 10)
+                if(favor < 8):
+                    cosm.COSM_CENTRAL_DATA[self.elArray[0][0] + 1][self.elArray[0][1]] = "000CAA"
+                    self.elArray.append([self.elArray[0][0] + 1, self.elArray[0][1]])
+        except:
+            print("something shorted")
+
+        #ADD RECURSIVE BUILD FUNCTION
+        #make sure to initialize element array with seed
+    def move(self):
+        # 0 = left, 1 = right, 2 = down, 3 = up
+        direction = 1
+        canMove = True
+        if(direction == 1):
+            for coord in self.elArray:
+                if(self.cosm.COSM_CENTRAL_DATA[coord[0]][coord[1] + 1] == "000AAA" and self.cosm.COSM_CENTRAL_DATA[coord[0]][coord[1] + 1][0:3] == self.ID):
+                    #print(self.cosm.COSM_CENTRAL_DATA[coord[0]][coord[1] + 1][0:3])
+                    #print("id = " + self.ID)
+                    print(self.cosm.COSM_CENTRAL_DATA[coord[0]][coord[1] + 1] != "000AAA")
+                    print(self.cosm.COSM_CENTRAL_DATA[coord[0]][coord[1] + 1][0:3] != self.ID)
+                    canMove = False
+            #MAKE NEW ARRAY
+            #DELETE OLD ARRAY FROM COSM
+            #ADD NEW ARRAY TO COSM AND MAKE IT THE OLD ARRAY IN CLASS
+            if (canMove == True):
+                print("hello")
+                newArr = self.elArray
+                for coord in newArr:
+                    coord[1] += 1
+                for coord in self.elArray:
+                    self.cosm.COSM_CENTRAL_DATA[coord[0]][coord[1]] = "000AAA"
+                self.elArray = newArr
+                for coord in self.elArray:
+                    self.cosm.COSM_CENTRAL_DATA[coord[0]][coord[1]] = "000CAA"
+        print("moving")
+
 class Ecosystem:
     def __init__(self, Organisms):
         self.organisms = Organisms
@@ -134,7 +259,7 @@ class Element_Table:
         self.elementTable.update(Element)
 
 
-##FUNCTIONS##
+##ELEMENT FUNCTIONS##
 def generateRandomFood(amount, cosm):
     count = 0
     while(count<amount):
@@ -151,6 +276,7 @@ def generateRandomElement(element, amount, cosm):
         if(cosm.COSM_CENTRAL_DATA[randx][randy] == "000AAA"):
             cosm.COSM_CENTRAL_DATA[randx][randy] = element
             count += 1
+        #ADD RECURSIVE GROWTH
 def drawParticle(xCoord, yCoord):
     ##will handle drawing single particle at single index
     print("FUNCTION - drawParticle() is currently under construction")

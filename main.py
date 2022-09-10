@@ -1,8 +1,4 @@
-import numpy.random
-import pygame, sys
-import numpy as np
 from ZOA import *
-from pygame.examples import scroll
 
 def ZOA_TEST_1():
     COSM_UNIT = 4
@@ -13,15 +9,26 @@ def ZOA_TEST_1():
     generateRandomFood(50, world1)
     generateRandomElement("000DAA", 20, world1)
     generateRandomElement("000EAA", 20, world1)
-    world1.COSM_CENTRAL_DATA[50][50] = "000CAA"
-    world1.COSM_CENTRAL_DATA[51][50] = "000CAA"
-    world1.COSM_CENTRAL_DATA[51][51] = "000CAA"
-    world1.COSM_CENTRAL_DATA[52][51] = "000CAA"
-    session1 = Session(world1, 1, True)
+
+
+
+    session1 = Session(world1, 1, True, True)
     session1.runSession()
 
 
 ZOA_TEST_1()
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
