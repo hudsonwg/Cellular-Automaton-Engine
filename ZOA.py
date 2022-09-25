@@ -5,8 +5,8 @@ import sys
 
 ##CONSTANTS##
 COLORKEY = {"BLACK": (0, 0, 0), "WHITE": (255, 255, 255), "BLUE": (0, 100, 255), "DARKBLUE": (13, 13, 27)}
-CODEKEY = {"AAA": (13, 13, 27),"BAA": (0, 100, 255), "CAA": (255, 255, 255), "DAA": (96, 235, 152), "EAA": (245, 51, 196)}
-GENERATEKEY = ["BAA", "CAA", "DAA", "EAA"]
+CODEKEY = {"AAA": (13, 13, 27),"BAA": (0, 100, 255), "CAA": (255, 255, 255), "DAA": (96, 235, 152), "EAA": (245, 51, 196), "COR": (255, 255, 255), "RRR": (39, 236, 98)}
+GENERATEKEY = ["BAA", "CAA", "DAA", "EAA", "COR", "RRR"]
 
 ##CLASSES##
 class Session:
@@ -28,15 +28,11 @@ class Session:
             borderVal = 0
         ##DECLARE RANDOM ORGS
         if(self.randomOrganisms == True):
-            organismArray = []
-            organismArray.append(randomOrganism("001", self.cosm, 10))
-            organismArray.append(randomOrganism("002", self.cosm, 10))
-            organismArray.append(randomOrganism("003", self.cosm, 10))
-            organismArray.append(randomOrganism("004", self.cosm, 10))
-            organismArray.append(randomOrganism("005", self.cosm, 10))
-            organismArray.append(randomOrganism("006", self.cosm, 10))
-            organismArray.append(randomOrganism("007", self.cosm, 10))
-            organismArray.append(randomOrganism("008", self.cosm, 10))
+            ID = "000"
+            for i in range(10):
+                randomX = numpy.random.randint(0, self.cosm.COSM_WIDTH)
+                randomY = numpy.random.randint(0, self.cosm.COSM_HEIGHT)
+                self.cosm.addOrganism("ARMPLACEHOLDER", [randomX, randomY], ID, self.cosm)
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -45,8 +41,8 @@ class Session:
             self.cosm.updateCosm()
             #DISPLAY ORGANISMS
             if(self.randomOrganisms == True):
-                for org in organismArray:
-                    org.move()
+                for org in self.cosm.ORGANISMS:
+                    org.updateOrganism()
             ##DRAWS ARRAY ON UPDATE
             for i in range(self.cosm.COSM_HEIGHT):
                 for j in range(self.cosm.COSM_WIDTH):
@@ -62,10 +58,16 @@ class Cosm:
         #self.COSM_CENTRAL_DATA = [["X"] * width] * height
         self.COSM_CENTRAL_DATA = numpy.full([width, height], "000AAA")
         self.COSM_ELEMENT_TABLE = 0
+        self.ORGANISMS = []
         self.COSM_ID = ID
         self.COSM_HEIGHT = height
         self.COSM_WIDTH = width
         self.SWEEP_INDEXES = []
+    def updateOrganisms(self):
+        for org in self.ORGANISMS:
+            org.updateOrganism()
+    def addOrganism(self, ARM, location, ID, cosm):
+        self.ORGANISMS.append(Organism(ARM, location, ID, cosm))
     def changeIndex(self, x, y, change):
         self.COSM_CENTRAL_DATA[y][x] = change
     def data(self):
@@ -111,16 +113,214 @@ class Cosm:
     def updateCosm(self):
         print("updating cosm")
 class Organism:
-    def __init__(self, ARM, Seed):
+    def __init__(self, ARM, location, ID, cosm):
+        #LOCATION PASSED AS [x, y]
         self.ARM = ARM
-        self.Seed = Seed
-        self.ElementArray = []
+        self.x = location[0]
+        self.y = location[1]
+        self.organismID = ID
+        self.cosm = cosm
+        self.componentArray = [location]
+        self.velocity = 0
+        self.energy = 0
+        self.resilience = 0
+        #resilience is experimental mechanic that offsets standard energy loss per step
+        self.states = []
+        self.actions = []
+        self.qVals = []
+        self.epsilon = 1
+        if (self.cosm.COSM_CENTRAL_DATA[self.x][self.y] == "000AAA"):
+            print("organism created succesfully")
+            self.cosm.COSM_CENTRAL_DATA[self.x][self.y] = self.organismID + "COR"
+
+            self.cosm.COSM_CENTRAL_DATA[self.x + 1][self.y] = self.organismID + "RRR"
+            self.componentArray.append([(self.x + 1), (self.y)])
+
+            self.cosm.COSM_CENTRAL_DATA[self.x - 1][self.y] = self.organismID + "RRR"
+            self.componentArray.append([(self.x - 1), (self.y)])
+
+            self.cosm.COSM_CENTRAL_DATA[self.x][self.y+1] = self.organismID + "RRR"
+            self.componentArray.append([(self.x), (self.y+1)])
+
+            self.cosm.COSM_CENTRAL_DATA[self.x][self.y-1] = self.organismID + "RRR"
+            self.componentArray.append([(self.x), (self.y-1)])
+
+            self.cosm.COSM_CENTRAL_DATA[self.x + 1][self.y-1] = self.organismID + "RRR"
+            self.componentArray.append([(self.x + 1), (self.y-1)])
+
+            self.cosm.COSM_CENTRAL_DATA[self.x - 1][self.y+1] = self.organismID + "RRR"
+            self.componentArray.append([(self.x - 1), (self.y+1)])
+
         #make sure to initialize element array with seed
-    def addElement(self, Element, Location):
-        if(Element.getConnection() == False):
-            Element.toggleConnection()
-    def completeAction(self):
-        print("under construction")
+    def updateOrganism(self):
+        #print(self.componentArray)
+        self.energy = self.energy - 1
+        randMoveSeed = numpy.random.randint(0, 4)
+        if(randMoveSeed == 0):
+            self.moveOrganism("UP")
+        if (randMoveSeed == 1):
+            self.moveOrganism("DOWN")
+        if (randMoveSeed == 2):
+            self.moveOrganism("LEFT")
+        if (randMoveSeed == 3):
+            self.moveOrganism("RIGHT")
+    def sortComp(self, direction):
+        #SORTS THE COMPOSITION ARRAY LEFT TO RIGHT TOP DOWN ETC ETC TO ALLOW MOVE FUNCTION TO WORK PROPERLY
+        if(direction == "UP"):
+            #find smallest el[0]
+            #find largest el[0]
+            #order the array from smallest el[0] to largest el[0]
+            small1 = 1000
+            for el in self.componentArray:
+                if(el[0]<=small1):
+                    small1 = el[0]
+            large1 = 0
+            for el in self.componentArray:
+                if(el[0]>large1):
+                    large1 = el[0]
+            interArray = []
+            count = small1
+            while (count < (large1 + 1)):
+                for el in self.componentArray:
+                    if(el[0] == count):
+                        interArray.append(el)
+                count += 1
+            self.componentArray = interArray
+        if (direction == "DOWN"):
+            # find smallest el[0]
+            # find largest el[0]
+            # order the array from smallest el[0] to largest el[0]
+            small1 = 1000
+            for el in self.componentArray:
+                if (el[0] <= small1):
+                    small1 = el[0]
+            large1 = 0
+            for el in self.componentArray:
+                if (el[0] > large1):
+                    large1 = el[0]
+            interArray = []
+            count = large1
+            while (count > small1 - 1):
+                for el in self.componentArray:
+                    if (el[0] == count):
+                        interArray.append(el)
+                count -= 1
+            self.componentArray = interArray
+        if (direction == "LEFT"):
+            # find smallest el[0]
+            # find largest el[0]
+            # order the array from smallest el[0] to largest el[0]
+            small1 = 1000
+            for el in self.componentArray:
+                if (el[1] < small1):
+                    small1 = el[1]
+            large1 = 0
+            for el in self.componentArray:
+                if (el[1] > large1):
+                    large1 = el[1]
+            interArray = []
+            count = small1
+            while (count < (large1 + 1)):
+                for el in self.componentArray:
+                    if (el[1] == count):
+                        interArray.append(el)
+                count += 1
+            self.componentArray = interArray
+        if (direction == "RIGHT"):
+            # find smallest el[0]
+            # find largest el[0]
+            # order the array from smallest el[0] to largest el[0]
+            small1 = 1000
+            for el in self.componentArray:
+                if (el[1] < small1):
+                    small1 = el[1]
+            large1 = 0
+            for el in self.componentArray:
+                if (el[1] > large1):
+                    large1 = el[1]
+            interArray = []
+            count = large1
+            while (count > small1 - 1):
+                for el in self.componentArray:
+                    if (el[1] == count):
+                        interArray.append(el)
+                count -= 1
+            self.componentArray = interArray
+    def moveOrganism(self, direction):
+        if(direction == "LEFT"):
+            self.sortComp("LEFT")
+            try:
+                canMove = True
+                for el in self.componentArray:
+                    if(self.cosm.COSM_CENTRAL_DATA[(el[0])][(el[1] - 1)][0:3] != "000" and self.cosm.COSM_CENTRAL_DATA[(el[0])][(el[1] - 1)][0:3] != self.organismID):
+                        canMove = False
+            except:
+                canMove = False
+                print("Index Out of Bounds: Move Query Failed")
+            if(canMove == True):
+                newComps = []
+                for el in self.componentArray:
+                    self.cosm.COSM_CENTRAL_DATA[(el[0])][(el[1] - 1)] = self.cosm.COSM_CENTRAL_DATA[el[0]][el[1]]
+                    self.cosm.COSM_CENTRAL_DATA[(el[0])][(el[1])] = "000AAA"
+                    newComps.append([(el[0]), (el[1] - 1)])
+                self.componentArray = newComps
+        if (direction == "RIGHT"):
+            self.sortComp("RIGHT")
+            try:
+                canMove = True
+                for el in self.componentArray:
+                    if (self.cosm.COSM_CENTRAL_DATA[(el[0])][(el[1] + 1)][0:3] != "000" and
+                            self.cosm.COSM_CENTRAL_DATA[(el[0])][(el[1] + 1)][0:3] != self.organismID):
+                        canMove = False
+            except:
+                canMove = False
+                print("Index Out of Bounds: Move Query Failed")
+            if (canMove == True):
+                newComps = []
+                for el in self.componentArray:
+                    self.cosm.COSM_CENTRAL_DATA[(el[0])][(el[1] + 1)] = self.cosm.COSM_CENTRAL_DATA[el[0]][el[1]]
+                    self.cosm.COSM_CENTRAL_DATA[(el[0])][(el[1])] = "000AAA"
+                    newComps.append([(el[0]), (el[1] + 1)])
+                self.componentArray = newComps
+        if (direction == "UP"):
+            self.sortComp("UP")
+            try:
+                canMove = True
+                for el in self.componentArray:
+                    if (self.cosm.COSM_CENTRAL_DATA[(el[0])-1][(el[1])][0:3] != "000" and
+                            self.cosm.COSM_CENTRAL_DATA[(el[0])-1][(el[1])][0:3] != self.organismID):
+                        canMove = False
+            except:
+                canMove = False
+                print("Index Out of Bounds: Move Query Failed")
+            if (canMove == True):
+                newComps = []
+                for el in self.componentArray:
+                    self.cosm.COSM_CENTRAL_DATA[(el[0])-1][(el[1])] = self.cosm.COSM_CENTRAL_DATA[el[0]][el[1]]
+                    self.cosm.COSM_CENTRAL_DATA[(el[0])][(el[1])] = "000AAA"
+                    newComps.append([(el[0] - 1), (el[1])])
+                self.componentArray = newComps
+        if (direction == "DOWN"):
+            self.sortComp("DOWN")
+            try:
+                canMove = True
+                for el in self.componentArray:
+                    if (self.cosm.COSM_CENTRAL_DATA[(el[0])+1][(el[1])][0:3] != "000" and
+                            self.cosm.COSM_CENTRAL_DATA[(el[0])+1][(el[1])][0:3] != self.organismID):
+                        canMove = False
+            except:
+                canMove = False
+                print("Index Out of Bounds: Move Query Failed")
+            if (canMove == True):
+                newComps = []
+                for el in self.componentArray:
+                    self.cosm.COSM_CENTRAL_DATA[(el[0])+1][(el[1])] = self.cosm.COSM_CENTRAL_DATA[el[0]][el[1]]
+                    self.cosm.COSM_CENTRAL_DATA[(el[0])][(el[1])] = "000AAA"
+                    newComps.append([(el[0]+1), (el[1])])
+                self.componentArray = newComps
+
+
+
 class randomOrganism:
     def __init__(self, ID, cosm, size):
         self.elArray = []
@@ -230,7 +430,6 @@ class randomOrganism:
                 for coord in self.elArray:
                     self.cosm.COSM_CENTRAL_DATA[coord[0]][coord[1]] = "000CAA"
         print("moving")
-
 class Ecosystem:
     def __init__(self, Organisms):
         self.organisms = Organisms
@@ -250,14 +449,6 @@ class Element:
         return self.connected
     def getID(self):
         return self.ID
-class Element_Table:
-    def __init__(self, currentElements):
-        #Pass in dictionary
-        self.elementTable = currentElements
-    def addElement(self, Element):
-        #add to dictionary of elements
-        self.elementTable.update(Element)
-
 
 ##ELEMENT FUNCTIONS##
 def generateRandomFood(amount, cosm):
@@ -289,7 +480,12 @@ def checkMoveQuery(currentX, currentY, queriedX, queriedY):
     print("FUNCTION - checkMoveQuery() is currently under construction")
 
 
-
+###ORGANISM FUNCTION ACT() PSEUDOCODE{
+###
+###     getState() getes state from all sensor eleemnts of teh organism
+###     chooseAction() DEEP Q NETWORK TO CHOOSE ACTION
+###     doAction() do the action teh Q Network predicts
+###}
 
 
 #GENERAL COSM STRUCTURE
@@ -303,3 +499,6 @@ def checkMoveQuery(currentX, currentY, queriedX, queriedY):
 #CLASS OBJECTS FOR ZOA PYTHON LIBRARY
 #SEED IS LOCATION OF ARM BUNDLE AND CORTICAL PROTEIN RESPECTIVELY  EXAMPLE: {[0, 1], [0, 2]}
 #TYPES OF ACTION - - - - - MOVEMENT, EAT, ATTACK, REPOSITION, STORE/COLLECT,
+
+##CORTICAL PROTEINS = CORTIX = "COR"
+##BASICSENSORPROTEIN = ELECTROSENSOR = "RRR"
