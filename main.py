@@ -6,9 +6,9 @@ def ZOA_TEST_1():
     COSM_HEIGHT = 200
     print("running ZOA Test 1")
     world1 = Cosm("COSM1TEST1", COSM_HEIGHT, COSM_WIDTH, COSM_UNIT)
-    generateRandomFood(50, world1)
-    generateRandomElement("000DAA", 20, world1)
-    generateRandomElement("000EAA", 20, world1)
+    generateRandomFood(200, world1)
+    #generateRandomElement("000DAA", 20, world1)
+    #generateRandomElement("000EAA", 20, world1)
 
 
 

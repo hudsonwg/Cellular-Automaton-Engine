@@ -28,11 +28,12 @@ class Session:
             borderVal = 0
         ##DECLARE RANDOM ORGS
         if(self.randomOrganisms == True):
-            ID = "000"
+            ID = 101
             for i in range(10):
-                randomX = numpy.random.randint(0, self.cosm.COSM_WIDTH)
-                randomY = numpy.random.randint(0, self.cosm.COSM_HEIGHT)
-                self.cosm.addOrganism("ARMPLACEHOLDER", [randomX, randomY], ID, self.cosm)
+                randomX = numpy.random.randint(20, self.cosm.COSM_WIDTH - 20)
+                randomY = numpy.random.randint(20, self.cosm.COSM_HEIGHT - 20)
+                self.cosm.addOrganism("ARMPLACEHOLDER", [randomX, randomY], str(ID), self.cosm)
+                ID += 1
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -156,6 +157,10 @@ class Organism:
         #print(self.componentArray)
         self.energy = self.energy - 1
         randMoveSeed = numpy.random.randint(0, 4)
+
+        self.sortComp("LEFT")
+        self.addComponent([self.componentArray[0][0], self.componentArray[0][1] - 1])
+        self.sense("01")
         if(randMoveSeed == 0):
             self.moveOrganism("UP")
         if (randMoveSeed == 1):
@@ -318,9 +323,62 @@ class Organism:
                     self.cosm.COSM_CENTRAL_DATA[(el[0])][(el[1])] = "000AAA"
                     newComps.append([(el[0]+1), (el[1])])
                 self.componentArray = newComps
+    def addComponent(self, componentLocation):
+        #component location displayed as [y, x]
+        if(self.cosm.COSM_CENTRAL_DATA[componentLocation[0]][componentLocation[1]][0:3] == "000" and self.cosm.COSM_CENTRAL_DATA[componentLocation[0]][componentLocation[1]] != "000AAA"):
+            self.componentArray.append([componentLocation[0], componentLocation[1]])
+    def sense(self, senseID):
+        if(senseID == "01"):
+            #basic strength sweep, returns if there is food present in each direction within 1 unit as quad [0, 0, 0, 0] 1 means food found, 0 means food not found
+            #[UP, DOWN, LEFT, RIGHT]
+            returnVal = [0, 0, 0, 0]
 
+            self.sortComp("UP")
+            targetY = self.componentArray[0][1]
+            interArr = []
+            for i in range(len(self.componentArray)):
+                if(self.componentArray[i][1] == targetY):
+                    interArr.append([self.componentArray[i][0], self.componentArray[i][1]])
+            for j in range(len(interArr)):
+                #CHANGE THIS TO FOOD ELEMENT
+                if(self.cosm.COSM_CENTRAL_DATA[interArr[j][0]][interArr[j][1] - 1] == "000BAA"):
+                    returnVal[0] = 1
 
+            self.sortComp("DOWN")
+            targetY = self.componentArray[0][1]
+            interArr = []
+            for i in range(len(self.componentArray)):
+                if (self.componentArray[i][1] == targetY):
+                    interArr.append([self.componentArray[i][0], self.componentArray[i][1]])
+            for j in range(len(interArr)):
+                # CHANGE THIS TO FOOD ELEMENT
+                if (self.cosm.COSM_CENTRAL_DATA[interArr[j][0]][interArr[j][1] + 1] == "000BAA"):
+                    returnVal[1] = 1
 
+            self.sortComp("LEFT")
+            targetX = self.componentArray[0][0]
+            interArr = []
+            for i in range(len(self.componentArray)):
+                if (self.componentArray[i][0] == targetX):
+                    interArr.append([self.componentArray[i][0], self.componentArray[i][1]])
+            for j in range(len(interArr)):
+                # CHANGE THIS TO FOOD ELEMENT
+                if (self.cosm.COSM_CENTRAL_DATA[interArr[j][0] - 1][interArr[j][1]] == "000BAA"):
+                    returnVal[2] = 1
+
+            self.sortComp("RIGHT")
+            targetX = self.componentArray[0][0]
+            interArr = []
+            for i in range(len(self.componentArray)):
+                if (self.componentArray[i][0] == targetX):
+                    interArr.append([self.componentArray[i][0], self.componentArray[i][1]])
+            for j in range(len(interArr)):
+                # CHANGE THIS TO FOOD ELEMENT
+                if (self.cosm.COSM_CENTRAL_DATA[interArr[j][0] + 1][interArr[j][1]] == "000BAA"):
+                    returnVal[3] = 1
+        if(returnVal != [0, 0, 0, 0]):
+            print("NUTRIX DETECTED")
+        return returnVal
 class randomOrganism:
     def __init__(self, ID, cosm, size):
         self.elArray = []
@@ -482,13 +540,14 @@ def checkMoveQuery(currentX, currentY, queriedX, queriedY):
 
 ###ORGANISM FUNCTION ACT() PSEUDOCODE{
 ###
-###     getState() getes state from all sensor eleemnts of teh organism
+###     getState() getes state from all sensor eleemnts of the organism
 ###     chooseAction() DEEP Q NETWORK TO CHOOSE ACTION
 ###     doAction() do the action teh Q Network predicts
 ###}
 
 
 #GENERAL COSM STRUCTURE
+#TO DO, BUILD BASIC Q NETWORK AND CREATE REWARD QUANTIFIER/NORMALIZER
 #
 #Cosm contains array of elements,
 #once a part of an organism, elements are no longer controleld by the cosm but rather the organism
@@ -500,5 +559,7 @@ def checkMoveQuery(currentX, currentY, queriedX, queriedY):
 #SEED IS LOCATION OF ARM BUNDLE AND CORTICAL PROTEIN RESPECTIVELY  EXAMPLE: {[0, 1], [0, 2]}
 #TYPES OF ACTION - - - - - MOVEMENT, EAT, ATTACK, REPOSITION, STORE/COLLECT,
 
+
+##NUTRIENT = NUTRIX = "BAA"
 ##CORTICAL PROTEINS = CORTIX = "COR"
 ##BASICSENSORPROTEIN = ELECTROSENSOR = "RRR"
