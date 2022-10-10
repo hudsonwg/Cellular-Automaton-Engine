@@ -123,13 +123,14 @@ class Organism:
         self.cosm = cosm
         self.componentArray = [location]
         self.velocity = 0
-        self.energy = 0
+        self.energy = 10
         self.resilience = 0
         #resilience is experimental mechanic that offsets standard energy loss per step
         self.states = []
         self.actions = []
         self.qVals = []
         self.epsilon = 1
+        self.status = "ALIVE"
         if (self.cosm.COSM_CENTRAL_DATA[self.x][self.y] == "000AAA"):
             print("organism created succesfully")
             self.cosm.COSM_CENTRAL_DATA[self.x][self.y] = self.organismID + "COR"
@@ -154,21 +155,29 @@ class Organism:
 
         #make sure to initialize element array with seed
     def updateOrganism(self):
-        #print(self.componentArray)
-        self.energy = self.energy - 1
-        randMoveSeed = numpy.random.randint(0, 4)
-
-        self.sortComp("LEFT")
-        self.addComponent([self.componentArray[0][0], self.componentArray[0][1] - 1])
-        self.sense("01")
-        if(randMoveSeed == 0):
-            self.moveOrganism("UP")
-        if (randMoveSeed == 1):
-            self.moveOrganism("DOWN")
-        if (randMoveSeed == 2):
-            self.moveOrganism("LEFT")
-        if (randMoveSeed == 3):
-            self.moveOrganism("RIGHT")
+        #ADD A DECOMPOSITION FUNCTION FOR IF THE ORGANISM IS STATUS DEAD
+        if (self.energy <= 0 and self.status == "ALIVE"):
+            self.status = "DEAD"
+            for el in self.componentArray:
+                self.cosm.COSM_CENTRAL_DATA[(el[0])][(el[1])] = "000BAA"
+            self.cosm.COSM_CENTRAL_DATA[self.y][self.x] == "000BAA"
+            self.componentArray = []
+        if(self.status == "ALIVE"):
+            #print(self.componentArray)
+            self.energy = self.energy - len(self.componentArray)
+            print(self.energy)
+            randMoveSeed = numpy.random.randint(0, 4)
+            self.sortComp("LEFT")
+            self.addComponent([self.componentArray[0][0], self.componentArray[0][1] - 1])
+            self.sense("01")
+            if(randMoveSeed == 0):
+                self.moveOrganism("UP")
+            if (randMoveSeed == 1):
+                self.moveOrganism("DOWN")
+            if (randMoveSeed == 2):
+                self.moveOrganism("LEFT")
+            if (randMoveSeed == 3):
+                self.moveOrganism("RIGHT")
     def sortComp(self, direction):
         #SORTS THE COMPOSITION ARRAY LEFT TO RIGHT TOP DOWN ETC ETC TO ALLOW MOVE FUNCTION TO WORK PROPERLY
         if(direction == "UP"):
@@ -537,14 +546,12 @@ def checkMoveQuery(currentX, currentY, queriedX, queriedY):
     moveApproved = False
     print("FUNCTION - checkMoveQuery() is currently under construction")
 
-
 ###ORGANISM FUNCTION ACT() PSEUDOCODE{
 ###
 ###     getState() getes state from all sensor eleemnts of the organism
 ###     chooseAction() DEEP Q NETWORK TO CHOOSE ACTION
 ###     doAction() do the action teh Q Network predicts
 ###}
-
 
 #GENERAL COSM STRUCTURE
 #TO DO, BUILD BASIC Q NETWORK AND CREATE REWARD QUANTIFIER/NORMALIZER
@@ -558,7 +565,6 @@ def checkMoveQuery(currentX, currentY, queriedX, queriedY):
 #CLASS OBJECTS FOR ZOA PYTHON LIBRARY
 #SEED IS LOCATION OF ARM BUNDLE AND CORTICAL PROTEIN RESPECTIVELY  EXAMPLE: {[0, 1], [0, 2]}
 #TYPES OF ACTION - - - - - MOVEMENT, EAT, ATTACK, REPOSITION, STORE/COLLECT,
-
 
 ##NUTRIENT = NUTRIX = "BAA"
 ##CORTICAL PROTEINS = CORTIX = "COR"
