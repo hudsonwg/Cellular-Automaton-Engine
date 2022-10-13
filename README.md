@@ -1,5 +1,5 @@
 ------------------------------------------------------
-LIFE ENGINE VERSION 0.0.1              
+ZOA LIFE ENGINE VERSION 0.0.1              
 ------------------------------------------------------
 
 Life engine is a dynamic biological simulator, created with the goal of simulating more complex microbiology and replicating evolutionary milestones. 
